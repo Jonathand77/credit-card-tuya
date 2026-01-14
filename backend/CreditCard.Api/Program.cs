@@ -19,6 +19,19 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Program>());
 
+// CORS for frontend dev (allows Authorization header and credentials if cookies used)
+var frontendUrl = builder.Configuration["Frontend:Url"] ?? "http://127.0.0.1:5173";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        policy.WithOrigins(frontendUrl)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Configure DbContext: prefer Postgres, fallback to InMemory for local/dev if connection fails
@@ -94,6 +107,9 @@ app.UseHttpsRedirection();
 
 // Global exception handler middleware
 app.UseMiddleware<ExceptionMiddleware>();
+
+// Use CORS for frontend
+app.UseCors("Frontend");
 
 // Ensure DB provider compatibility note: run migrations after configuring connection string.
 app.UseAuthentication();
