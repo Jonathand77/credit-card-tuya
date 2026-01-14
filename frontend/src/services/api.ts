@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000'
+const BASE = import.meta.env.VITE_API_URL || 'https://musical-space-guide-r4g4gqqgx49rhxpx4-5000.app.github.dev'
 
 function getToken(){
   return localStorage.getItem('token')
@@ -9,21 +9,29 @@ async function request(path:string, opts:RequestInit={}){
   const token = getToken()
   if(token) headers['Authorization'] = 'Bearer '+token
   if (!headers['Content-Type'] && !(opts.body instanceof FormData)) headers['Content-Type'] = 'application/json'
-  const res = await fetch(BASE+path, {...opts, headers, credentials: 'include'})
-  if(!res.ok) throw new Error(await res.text())
-  return res.status===204? null : await res.json()
+  try {
+    const res = await fetch(BASE+path, {...opts, headers})
+    if(!res.ok) {
+      const text = await res.text()
+      throw new Error(text || `HTTP ${res.status}`)
+    }
+    return res.status===204? null : await res.json()
+  } catch(err:any) {
+    console.error('Request failed:', err)
+    throw err
+  }
 }
 
-export const login = async (email:string,password:string)=>{
-  const r = await request('/api/auth/login', {method:'POST', body: JSON.stringify({email,password})})
+export const login = async (username:string, email:string, password:string)=>{
+  const r = await request('/api/auth/login', {method:'POST', body: JSON.stringify({username, email, password})})
   if(r?.token) {
     localStorage.setItem('token', r.token)
   }
   return r
 }
 
-export const register = async (email:string,password:string)=>{
-  const r = await request('/api/auth/register', {method:'POST', body: JSON.stringify({email,password})})
+export const register = async (username:string, email:string, password:string)=>{
+  const r = await request('/api/auth/register', {method:'POST', body: JSON.stringify({username, email, password})})
   if(r?.token) {
     localStorage.setItem('token', r.token)
   }

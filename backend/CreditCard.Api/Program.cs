@@ -19,16 +19,16 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Program>());
 
-// CORS for frontend dev (allows Authorization header and credentials if cookies used)
-var frontendUrl = builder.Configuration["Frontend:Url"] ?? "http://127.0.0.1:5173";
+// CORS for frontend dev
+var frontendUrl = builder.Configuration["Frontend:Url"] ?? "https://musical-space-guide-r4g4gqqgx49rhxpx4-5173.app.github.dev";
+var localFrontendUrl = "http://127.0.0.1:5173";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins(frontendUrl)
+        policy.WithOrigins(frontendUrl, localFrontendUrl)
               .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+              .AllowAnyHeader();
     });
 });
 
