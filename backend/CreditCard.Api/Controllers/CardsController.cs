@@ -1,0 +1,123 @@
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using CreditCard.Api.DTOs;
+using CreditCard.Api.Infrastructure;
+using CreditCard.Domain.Entities;
+
+namespace CreditCard.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
+    public class CardsController : ControllerBase
+    {
+        private readonly CreditCard.Application.Services.CardService _service;
+        private readonly AutoMapper.IMapper _mapper;
+
+        public CardsController(CreditCard.Application.Services.CardService service, AutoMapper.IMapper mapper)
+        {
+            _service = service;
+            _mapper = mapper;
+        }
+
+        private Guid GetUserId()
+        {
+            var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
+            return Guid.Parse(sub!);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserCards()
+        {
+            var userId = GetUserId();
+            var cards = await _service.GetByUserAsync(userId);
+            var list = _mapper.Map<System.Collections.Generic.IEnumerable<CardDto>>(cards);
+            return Ok(list);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var userId = GetUserId();
+            var card = await _service.GetByIdAsync(id);
+            if (card == null || card.UserId != userId) return NotFound();
+            return Ok(_mapper.Map<CardDto>(card));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CardCreateDto input)
+        {
+            var userId = GetUserId();
+
+            var card = new CreditCard.Domain.Entities.CreditCard
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                CardNumber = MaskCardNumber(input.CardNumber),
+                HolderName = input.HolderName,
+                Expiry = input.Expiry,
+                Limit = input.Limit,
+                Balance = 0m,
+                CvvHash = BCrypt.Net.BCrypt.HashPassword(input.Cvv),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _service.AddAsync(card);
+
+            var dto = new CardDto
+            {
+                Id = card.Id,
+                CardNumber = card.CardNumber,
+                HolderName = card.HolderName,
+                Expiry = card.Expiry,
+                Limit = card.Limit,
+                Balance = card.Balance,
+                CreatedAt = card.CreatedAt
+            };
+
+            return CreatedAtAction(nameof(GetById), new { id = card.Id }, dto);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, CardUpdateDto input)
+        {
+            var userId = GetUserId();
+            var card = await _service.GetByIdAsync(id);
+            if (card == null || card.UserId != userId) return NotFound();
+
+            card.HolderName = input.HolderName;
+            card.Expiry = input.Expiry;
+            card.Limit = input.Limit;
+
+            await _service.UpdateAsync(card);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            var userId = GetUserId();
+            var card = await _service.GetByIdAsync(id);
+            if (card == null || card.UserId != userId) return NotFound();
+
+            await _service.DeleteAsync(card);
+
+            return NoContent();
+        }
+
+        private string MaskCardNumber(string number)
+        {
+            if (string.IsNullOrWhiteSpace(number)) return number;
+            var trimmed = number.Replace(" ", "");
+            if (trimmed.Length <= 4) return trimmed;
+            var last4 = trimmed.Substring(trimmed.Length - 4);
+            return new string('*', Math.Max(0, trimmed.Length - 4)) + last4;
+        }
+    }
+}

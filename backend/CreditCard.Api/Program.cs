@@ -4,65 +4,85 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using AutoMapper;
+using FluentValidation.AspNetCore;
+using CreditCard.Api.Middleware;
+using CreditCard.Application.Interfaces;
+using CreditCard.Api.Infrastructure;
+using CreditCard.Application.Services;
+using CreditCard.Api.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Program>());
 
-// --------------------
-// Configure DbContext
-// --------------------
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+
+// Configure DbContext: prefer Postgres, fallback to InMemory for local/dev if connection fails
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-if (!string.IsNullOrWhiteSpace(connectionString))
+var useInMemoryEnv = Environment.GetEnvironmentVariable("USE_INMEMORY")?.ToLower() == "true";
+var useInMemory = useInMemoryEnv;
+if (!useInMemory && !string.IsNullOrWhiteSpace(connectionString))
 {
-    // Siempre usar Supabase si hay connection string
-    builder.Services.AddDbContext<AppDbContext>(options =>
-        options.UseNpgsql(connectionString));
+    try
+    {
+        // Quick connectivity test with short timeout
+        using var conn = new Npgsql.NpgsqlConnection(connectionString);
+        conn.Open();
+        conn.Close();
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connectionString));
+    }
+    catch
+    {
+        useInMemory = true;
+    }
 }
-else
+
+if (useInMemory)
 {
-    // Solo fallback InMemory para desarrollo rápido
     builder.Services.AddDbContext<AppDbContext>(options =>
         options.UseInMemoryDatabase("InMemoryDb"));
 }
 
-// --------------------
+// Repositories and application services
+builder.Services.AddScoped<ICardRepository, CardRepository>();
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<CardService>();
+builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<TransactionService>();
+
 // Configure JWT authentication
-// --------------------
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CreditCardApi";
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer(options =>
-{
-    options.RequireHttpsMetadata = true;
-    options.SaveToken = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+    .AddJwtBearer(options =>
     {
-        ValidateIssuer = true,
-        ValidIssuer = jwtIssuer,
-        ValidateAudience = false,
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-    };
-});
+        options.RequireHttpsMetadata = true;
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwtIssuer,
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
-// --------------------
-// Configure middleware
-// --------------------
+// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -70,27 +90,30 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Solo habilitar HTTPS si realmente lo configuras
 app.UseHttpsRedirection();
 
+// Global exception handler middleware
+app.UseMiddleware<ExceptionMiddleware>();
+
+// Ensure DB provider compatibility note: run migrations after configuring connection string.
 app.UseAuthentication();
 app.UseAuthorization();
 
-// --------------------
-// Seed in-memory DB if used
-// --------------------
+// Seed in-memory DB in Development when used
 using (var scope = app.Services.CreateScope())
 {
     var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    if (ctx.Database.IsInMemory())
+    try
     {
+        // Ensure DB created for providers that need it
         ctx.Database.EnsureCreated();
+    }
+    catch
+    {
+        // ignore creation errors for unreachable providers
     }
 }
 
-// --------------------
-// Example endpoint
-// --------------------
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -98,7 +121,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
+    var forecast =  Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -110,16 +133,11 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
-// --------------------
-// Map controllers
-// --------------------
+// Map attribute-routed controllers
 app.MapControllers();
 
 app.Run();
 
-// --------------------
-// Record for WeatherForecast
-// --------------------
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
