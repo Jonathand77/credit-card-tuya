@@ -32,6 +32,8 @@ export const register = async (email:string,password:string)=>{
 
 export const getCards = ()=> request('/api/cards')
 export const createCard = (payload:any)=> request('/api/cards', {method:'POST', body: JSON.stringify(payload)})
+export const updateCard = (id:string,payload:any)=> request(`/api/cards/${id}`, {method:'PUT', body: JSON.stringify(payload)})
+export const deleteCard = (id:string)=> request(`/api/cards/${id}`, {method:'DELETE'})
 
 export const createPayment = (payload:any)=> request('/api/payments', {method:'POST', body: JSON.stringify(payload)})
 

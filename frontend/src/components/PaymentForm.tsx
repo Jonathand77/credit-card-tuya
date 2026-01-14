@@ -1,10 +1,14 @@
 import React, { useState } from 'react'
 import { createPayment } from '../services/api'
 
-export default function PaymentForm(){
-  const [cardId,setCardId]=useState('')
+export default function PaymentForm({ cards }:{ cards?: any[] }){
+  const [cardId,setCardId]=useState(cards && cards[0]?.id || '')
   const [amount,setAmount]=useState(0)
   const [desc,setDesc]=useState('')
+
+  useEffect(()=>{
+    if(cards && cards.length>0 && !cardId) setCardId(cards[0].id)
+  },[cards])
 
   const submit=async (e:any)=>{
     e.preventDefault()
