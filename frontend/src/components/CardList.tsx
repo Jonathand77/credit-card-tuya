@@ -12,8 +12,8 @@ export default function CardList({ items, onEdit, onDelete }:{items:any[], onEdi
             <div>Limit: {c.limit} — Balance: {c.balance}</div>
           </div>
           <div style={{display:'flex',gap:8}}>
-            <button onClick={()=>onEdit?.(c)}>Edit</button>
-            <button onClick={()=>onDelete?.(c.id)}>Delete</button>
+            <button onClick={()=>onEdit?.(c)}>Editar</button>
+            <button onClick={()=>onDelete?.(c.id)}>Borrar</button>
           </div>
         </div>
       ))}

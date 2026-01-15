@@ -2,46 +2,71 @@ import React, { useEffect, useState } from 'react'
 import { getCards, deleteCard } from '../services/api'
 import CardList from '../components/CardList'
 import CardForm from '../components/CardForm'
-import Modal from '../components/Modal'
+import CardPreview from '../components/CardPreview'
 
-export default function Cards(){
+export default function Cards() {
   const [cards, setCards] = useState<any[]>([])
-  const [showModal, setShowModal] = useState(false)
-  const [editing, setEditing] = useState<any|undefined>(undefined)
+  const [editing, setEditing] = useState<any | undefined>(undefined)
 
-  const load = async ()=>{
-    try{
+  const load = async () => {
+    try {
       const c = await getCards()
-      setCards(c||[])
-    }catch(err){console.error(err)}
+      setCards(c || [])
+    } catch (err) {
+      console.error(err)
+    }
   }
 
-  useEffect(()=>{ load() },[])
+  useEffect(() => {
+    load()
+  }, [])
 
-  const handleCreated = (item:any)=> setCards(prev=>[item,...prev])
-  const handleSaved = (item:any)=> {
-    setCards(prev=> [item, ...prev.filter((p:any)=>p.id!==item.id)])
+  const handleSaved = (item: any) => {
+    setCards(prev => [item, ...prev.filter(p => p.id !== item.id)])
+    setEditing(undefined)
   }
 
-  const handleEdit = (c:any)=>{ setEditing(c); setShowModal(true) }
-  const handleDelete = async (id:string)=>{
-    if(!confirm('Delete card?')) return
-    try{ await deleteCard(id); setCards(prev=>prev.filter(p=>p.id!==id)) }catch(err){console.error(err)}
+  const handleEdit = (card: any) => {
+    setEditing(card)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Delete card?')) return
+    try {
+      await deleteCard(id)
+      setCards(prev => prev.filter(p => p.id !== id))
+      if (editing?.id === id) setEditing(undefined)
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   return (
-    <div>
-      <h2>Cards</h2>
-      <button onClick={()=>{ setEditing(undefined); setShowModal(true) }}>Create card</button>
-      <div style={{marginTop:12}}>
-        <CardList items={cards} onEdit={handleEdit} onDelete={handleDelete} />
-      </div>
+    <div className="container fade-in">
+      <h2 style={{ marginBottom: 24 }}>Registro de Tarjetas</h2>
 
-      {showModal && (
-        <Modal onClose={()=>setShowModal(false)}>
-          <CardForm initial={editing} onSaved={(c:any)=>{ handleSaved(c); setShowModal(false) }} onClose={()=>setShowModal(false)} />
-        </Modal>
-      )}
+      <div className="cards-layout">
+        {/* LEFT SIDE */}
+        <div className="card-preview">
+          <CardPreview card={editing} />
+
+          <div style={{ marginTop: 24 }}>
+            <CardList
+              items={cards}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          </div>
+        </div>
+
+        {/* RIGHT SIDE */}
+        <div className="payment-panel">
+          <CardForm
+            initial={editing}
+            onSaved={handleSaved}
+          />
+        </div>
+      </div>
     </div>
   )
 }
