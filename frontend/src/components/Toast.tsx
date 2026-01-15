@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
-type ToastType = 'success' | 'error' | 'warning' | 'info'
+export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
 interface ToastMessage {
   id: string
@@ -9,21 +9,28 @@ interface ToastMessage {
   duration?: number
 }
 
-const toastStore: { messages: ToastMessage[], listeners: Set<Function> } = {
+const toastStore: {
+  messages: ToastMessage[]
+  listeners: Set<Function>
+} = {
   messages: [],
   listeners: new Set()
 }
 
-export const showToast = (message: string, type: ToastType = 'info', duration = 4000) => {
+export const showToast = (
+  message: string,
+  type: ToastType = 'info',
+  duration = 4000
+) => {
   const id = Date.now().toString()
   const toast: ToastMessage = { id, message, type, duration }
   toastStore.messages.push(toast)
-  toastStore.listeners.forEach(listener => listener([...toastStore.messages]))
-  
+  toastStore.listeners.forEach(l => l([...toastStore.messages]))
+
   if (duration > 0) {
     setTimeout(() => {
       toastStore.messages = toastStore.messages.filter(t => t.id !== id)
-      toastStore.listeners.forEach(listener => listener([...toastStore.messages]))
+      toastStore.listeners.forEach(l => l([...toastStore.messages]))
     }, duration)
   }
 }
@@ -33,75 +40,80 @@ export default function Toast() {
 
   useEffect(() => {
     toastStore.listeners.add(setMessages)
+
     return () => {
       toastStore.listeners.delete(setMessages)
     }
   }, [])
 
-  const getIcon = (type: ToastType) => {
-    switch (type) {
-      case 'success': return '✓'
-      case 'error': return '✕'
-      case 'warning': return '⚠'
-      case 'info': return 'ℹ'
-    }
-  }
-
-  const getStyles = (type: ToastType) => {
-    const baseStyle: React.CSSProperties = {
-      padding: '16px 20px',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '12px',
-      fontSize: '14px',
-      fontWeight: '500',
-      animation: 'slideIn 0.3s ease-out, slideOut 0.3s ease-out 3.7s forwards',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      marginBottom: '12px'
-    }
-
-    switch (type) {
-      case 'success':
-        return { ...baseStyle, background: '#10b981', color: '#fff' }
-      case 'error':
-        return { ...baseStyle, background: '#ef4444', color: '#fff' }
-      case 'warning':
-        return { ...baseStyle, background: '#f59e0b', color: '#fff' }
-      case 'info':
-        return { ...baseStyle, background: '#3b82f6', color: '#fff' }
-    }
+  const close = (id: string) => {
+    toastStore.messages = toastStore.messages.filter(t => t.id !== id)
+    toastStore.listeners.forEach(l => l([...toastStore.messages]))
   }
 
   return (
     <>
       <style>{`
-        @keyframes slideIn {
-          from { transform: translateX(400px); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+        @keyframes toastIn {
+          from { transform: translateX(120%); opacity: 0 }
+          to { transform: translateX(0); opacity: 1 }
         }
-        @keyframes slideOut {
-          from { transform: translateX(0); opacity: 1; }
-          to { transform: translateX(400px); opacity: 0; }
+        @keyframes toastOut {
+          from { transform: translateX(0); opacity: 1 }
+          to { transform: translateX(120%); opacity: 0 }
         }
       `}</style>
+
       <div style={{
         position: 'fixed',
-        bottom: '20px',
-        right: '20px',
+        top: 24,
+        right: 24,
         zIndex: 9999,
-        pointerEvents: 'none'
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 12
       }}>
-        {messages.map(toast => (
-          <div key={toast.id} style={getStyles(toast.type) as React.CSSProperties} onMouseEnter={() => {
-            const el = document.querySelector(`[data-toast-id="${toast.id}"]`) as HTMLElement
-            if (el) el.style.animation = 'none'
-          }} onMouseLeave={() => {
-            const el = document.querySelector(`[data-toast-id="${toast.id}"]`) as HTMLElement
-            if (el) el.style.animation = 'slideIn 0.3s ease-out, slideOut 0.3s ease-out 3.7s forwards'
-          }} data-toast-id={toast.id}>
-            <span style={{ fontSize: '18px' }}>{getIcon(toast.type)}</span>
-            <span>{toast.message}</span>
+        {messages.map(t => (
+          <div
+            key={t.id}
+            style={{
+              minWidth: 320,
+              padding: '14px 16px',
+              borderRadius: 12,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              background: 'var(--color-white)',
+              boxShadow: '0 12px 24px rgba(0,0,0,0.12)',
+              animation: 'toastIn 0.35s ease, toastOut 0.3s ease forwards',
+              animationDelay: `0s, ${(t.duration || 4000) - 300}ms`,
+              borderLeft: `6px solid ${t.type === 'success' ? 'var(--color-success)' :
+                  t.type === 'error' ? 'var(--color-error)' :
+                    t.type === 'warning' ? 'var(--color-warning)' :
+                      'var(--color-primary)'
+                }`
+            }}
+          >
+            <strong style={{ textTransform: 'capitalize' }}>
+              {t.type}
+            </strong>
+
+            <span style={{ flex: 1, fontSize: 14 }}>
+              {t.message}
+            </span>
+
+            <button
+              onClick={() => close(t.id)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                fontSize: 18,
+                cursor: 'pointer',
+                opacity: 0.6
+              }}
+            >
+              ✕
+            </button>
           </div>
         ))}
       </div>

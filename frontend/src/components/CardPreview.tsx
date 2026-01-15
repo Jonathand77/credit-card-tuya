@@ -1,4 +1,13 @@
+import { useEffect } from 'react'
+import { showToast } from '../components/Toast'
+
 export default function CardPreview({ card }: { card?: any }) {
+  useEffect(() => {
+    if (!card) {
+      showToast('Selecciona una tarjeta para ver el detalle', 'info', 2500)
+    }
+  }, [card])
+
   return (
     <div className="credit-card">
       <div className="card-chip" />

@@ -7,15 +7,20 @@ namespace CreditCard.Domain.Entities
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public string CardNumber { get; set; } = null!;
+
+        public string CardNumberMasked { get; set; } = null!;
+        public string CardNumberHash { get; set; } = null!;
+        public string Last4 { get; set; } = null!;
+
         public string HolderName { get; set; } = null!;
         public string Expiry { get; set; } = null!;
-        public string CvvHash { get; set; } = null!;
         public decimal Limit { get; set; }
         public decimal Balance { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public User? User { get; set; }
-        public List<Transaction> Transactions { get; set; } = new();
+        public string CvvHash { get; set; } = null!;
+        public DateTime CreatedAt { get; set; }
+
+        public User User { get; set; } = null!;
+        public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     }
 }

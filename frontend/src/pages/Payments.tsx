@@ -24,7 +24,12 @@ export default function Payments() {
 
   return (
     <div className="container fade-in">
-      <h2 style={{ marginBottom: 24 }}>Gestión de Pagos</h2>
+      <div className="history-header">
+        <h2 className="history-title">Gestión de Pagos</h2>
+        <p className="history-subtitle">
+          Realiza pagos utilizando tus tarjetas registradas
+        </p>
+      </div>
 
       <div className="cards-layout">
         {/* LEFT */}

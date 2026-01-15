@@ -54,33 +54,41 @@ namespace CreditCard.Api.Controllers
         {
             var userId = GetUserId();
 
+            var trimmed = input.CardNumber.Replace(" ", "");
+
+            if (!System.Text.RegularExpressions.Regex.IsMatch(trimmed, @"^\d{16}$"))
+                return BadRequest("La tarjeta debe tener 16 dígitos");
+
             var card = new CreditCard.Domain.Entities.CreditCard
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                CardNumber = MaskCardNumber(input.CardNumber),
+
+                CardNumberMasked = MaskCardNumber(trimmed),
+                CardNumberHash = BCrypt.Net.BCrypt.HashPassword(trimmed),
+                Last4 = trimmed[^4..],
+
                 HolderName = input.HolderName,
                 Expiry = input.Expiry,
                 Limit = input.Limit,
                 Balance = 0m,
+
                 CvvHash = BCrypt.Net.BCrypt.HashPassword(input.Cvv),
                 CreatedAt = DateTime.UtcNow
             };
 
             await _service.AddAsync(card);
 
-            var dto = new CardDto
+            return CreatedAtAction(nameof(GetById), new { id = card.Id }, new CardDto
             {
                 Id = card.Id,
-                CardNumber = card.CardNumber,
+                CardNumber = card.CardNumberMasked,
                 HolderName = card.HolderName,
                 Expiry = card.Expiry,
                 Limit = card.Limit,
                 Balance = card.Balance,
                 CreatedAt = card.CreatedAt
-            };
-
-            return CreatedAtAction(nameof(GetById), new { id = card.Id }, dto);
+            });
         }
 
         [HttpPut("{id}")]

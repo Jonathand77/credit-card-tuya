@@ -2,45 +2,71 @@ import React, { useState } from 'react'
 import { register } from '../services/api'
 import { showToast } from './Toast'
 
-export default function RegisterForm({ onSuccess, onClose }:{ onSuccess?:()=>void, onClose?:()=>void }){
-  const [username,setUsername]=useState('')
-  const [email,setEmail]=useState('')
-  const [password,setPassword]=useState('')
-  const [loading,setLoading]=useState(false)
+export default function RegisterForm({ onSuccess, onClose }: { onSuccess?: () => void, onClose?: () => void }) {
+  const [username, setUsername] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const submit = async (e:any)=>{
+  const isValidEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+
+  const submit = async (e: any) => {
     e.preventDefault()
-    
-    if(!username.trim()) { 
+
+    if (!username.trim()) {
       showToast('El usuario es requerido', 'warning')
-      return 
+      return
     }
-    if(!email.trim()) { 
-      showToast('El email es requerido', 'warning')
-      return 
+
+    if (username.trim().length < 5) {
+      showToast('El usuario debe tener al menos 5 caracteres', 'warning')
+      return
     }
-    if(!password.trim()) { 
+
+    if (!email.trim()) {
+      showToast('El correo electrónico es requerido', 'warning')
+      return
+    }
+
+    if (!isValidEmail(email)) {
+      showToast('Correo electrónico no válido', 'warning')
+      return
+    }
+
+    if (!password.trim()) {
       showToast('La contraseña es requerida', 'warning')
-      return 
+      return
     }
-    
+
+    if (password.length < 5) {
+      showToast('La contraseña debe tener al menos 5 caracteres', 'warning')
+      return
+    }
+
     setLoading(true)
-    try{
+
+    try {
       const result = await register(username, email, password)
-      if(result && result.token) {
-        showToast('✓ Cuenta creada exitosamente', 'success')
+
+      if (result?.token) {
+        showToast('Cuenta creada exitosamente 🎉', 'success')
+
         setUsername('')
         setEmail('')
         setPassword('')
+
         setTimeout(() => {
           onSuccess?.()
           onClose?.()
-        }, 1500)
+        }, 1200)
       }
-    }catch(err:any){
-      console.error('Register error:', err)
-      showToast(err.message || 'Error al registrar', 'error')
-    }finally{
+    } catch (err: any) {
+      showToast(
+        err?.message || 'No se pudo completar el registro',
+        'error'
+      )
+    } finally {
       setLoading(false)
     }
   }
@@ -61,43 +87,43 @@ export default function RegisterForm({ onSuccess, onClose }:{ onSuccess?:()=>voi
         color: 'var(--color-primary)',
         fontFamily: 'var(--font-family-heading)'
       }}>Crear Cuenta</h3>
-      
+
       <div className="form-row">
-        <input 
-          required 
+        <input
+          required
           type="text"
-          placeholder="Usuario" 
-          value={username} 
-          onChange={e=>setUsername(e.target.value)} 
+          placeholder="Usuario"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
           disabled={loading}
         />
       </div>
-      
+
       <div className="form-row">
-        <input 
-          required 
-          type="email" 
-          placeholder="Correo Electrónico" 
-          value={email} 
-          onChange={e=>setEmail(e.target.value)}
+        <input
+          required
+          type="email"
+          placeholder="Correo Electrónico"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
           disabled={loading}
         />
       </div>
-      
+
       <div className="form-row">
-        <input 
-          required 
-          type="password" 
-          placeholder="Contraseña" 
-          value={password} 
-          onChange={e=>setPassword(e.target.value)}
+        <input
+          required
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
           disabled={loading}
         />
       </div>
-      
-      <div style={{display:'flex', gap:12, marginTop: 28}}>
-        <button 
-          type="submit" 
+
+      <div style={{ display: 'flex', gap: 12, marginTop: 28 }}>
+        <button
+          type="submit"
           disabled={loading}
           style={{
             flex: 1,
@@ -113,9 +139,9 @@ export default function RegisterForm({ onSuccess, onClose }:{ onSuccess?:()=>voi
         >
           {loading ? 'Registrando...' : 'Registrarse'}
         </button>
-        
-        <button 
-          type="button" 
+
+        <button
+          type="button"
           onClick={onClose}
           disabled={loading}
           style={{

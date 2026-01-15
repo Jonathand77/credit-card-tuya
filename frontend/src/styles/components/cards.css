@@ -1,0 +1,81 @@
+.card {
+  border: 1px solid #e6e9ef;
+  padding: 16px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  background: var(--color-white);
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+}
+
+/* ---------------- CARD PREVIEW ---------------- */
+
+.card-preview {
+  position: sticky;
+  top: 24px;
+}
+
+/* ---------------- CREDIT CARD ---------------- */
+
+.credit-card {
+  position: relative;
+  height: 220px;
+  width: 400px;
+  border-radius: 18px;
+  padding: 24px;
+  color: white;
+  background: linear-gradient(135deg, #eb2525, #e10404);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: fadeIn 0.4s ease;
+  overflow: hidden;
+}
+
+.credit-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: radial-gradient(
+    circle at top right,
+    rgba(255, 255, 255, 0.18),
+    transparent 60%
+  );
+}
+
+/* Chip */
+.card-chip {
+  width: 46px;
+  height: 34px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+}
+
+/* Card number */
+.card-number {
+  font-size: 22px;
+  letter-spacing: 3px;
+  font-weight: 600;
+}
+
+/* Card meta */
+.card-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+/* Actions under card */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}

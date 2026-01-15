@@ -3,6 +3,7 @@ import { getCards, deleteCard } from '../services/api'
 import CardList from '../components/CardList'
 import CardForm from '../components/CardForm'
 import CardPreview from '../components/CardPreview'
+import { showToast } from '../components/Toast'
 
 export default function Cards() {
   const [cards, setCards] = useState<any[]>([])
@@ -12,8 +13,8 @@ export default function Cards() {
     try {
       const c = await getCards()
       setCards(c || [])
-    } catch (err) {
-      console.error(err)
+    } catch {
+      showToast('No se pudieron cargar las tarjetas', 'error')
     }
   }
 
@@ -28,22 +29,32 @@ export default function Cards() {
 
   const handleEdit = (card: any) => {
     setEditing(card)
+    showToast('Editando tarjeta seleccionada', 'info')
   }
 
+
   const handleDelete = async (id: string) => {
-    if (!confirm('Delete card?')) return
+    if (!confirm('¿Eliminar tarjeta?')) return
+
     try {
       await deleteCard(id)
       setCards(prev => prev.filter(p => p.id !== id))
       if (editing?.id === id) setEditing(undefined)
-    } catch (err) {
-      console.error(err)
+
+      showToast('Tarjeta eliminada correctamente', 'success')
+    } catch {
+      showToast('Error al eliminar la tarjeta', 'error')
     }
   }
 
   return (
     <div className="container fade-in">
-      <h2 style={{ marginBottom: 24 }}>Registro de Tarjetas</h2>
+      <div className="history-header">
+        <h2 className="history-title">Gestión de Tarjetas</h2>
+        <p className="history-subtitle">
+          Registra y revisa tus tarjetas de crédito/débito para realizar pagos
+        </p>
+      </div>
 
       <div className="cards-layout">
         {/* LEFT SIDE */}

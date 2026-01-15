@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { createPayment } from '../services/api'
+import { showToast } from './Toast'
 
 export default function PaymentForm({ cards }: { cards?: any[] }) {
-  const [cardId, setCardId] = useState(cards && cards[0]?.id || '')
-  const [amount, setAmount] = useState(0)
+  const [cardId, setCardId] = useState('')
+  const [amount, setAmount] = useState<number | ''>('')
   const [desc, setDesc] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const selectedCard = cards?.find(c => c.id === cardId)
 
   useEffect(() => {
     if (cards && cards.length > 0 && !cardId) {
@@ -13,21 +16,51 @@ export default function PaymentForm({ cards }: { cards?: any[] }) {
     }
   }, [cards])
 
-  const submit = async (e: any) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    /* ---------- VALIDACIONES ---------- */
+
+    if (!cards || cards.length === 0) {
+      showToast('No tienes tarjetas registradas', 'warning')
+      return
+    }
+
+    if (!cardId) {
+      showToast('Selecciona una tarjeta válida', 'warning')
+      return
+    }
+
+    if (!amount || amount <= 0) {
+      showToast('Ingresa un monto válido', 'warning')
+      return
+    }
+
+    if (selectedCard && amount > selectedCard.limit) {
+      showToast(
+        `El monto excede el límite disponible ($${selectedCard.limit})`,
+        'error'
+      )
+      return
+    }
+
+    /* ---------- PAGO ---------- */
+
     setLoading(true)
+
     try {
       await createPayment({
         cardId,
         amount,
         description: desc,
       })
-      alert('Pago realizado correctamente!')
-      setAmount(0)
+
+      showToast('Pago realizado exitosamente', 'success')
+      setAmount('')
       setDesc('')
     } catch (err) {
       console.error(err)
-      alert('Pago denegado')
+      showToast('El pago fue rechazado. Intenta nuevamente', 'error')
     } finally {
       setLoading(false)
     }
@@ -41,7 +74,10 @@ export default function PaymentForm({ cards }: { cards?: any[] }) {
         <label>Seleccione Tarjeta</label>
 
         <div className="select-wrapper">
-          <select value={cardId} onChange={e => setCardId(e.target.value)}>
+          <select
+            value={cardId}
+            onChange={e => setCardId(e.target.value)}
+          >
             {cards?.map(card => (
               <option key={card.id} value={card.id}>
                 •••• {card.cardNumber?.slice(-4)} — {card.holderName}
@@ -52,7 +88,7 @@ export default function PaymentForm({ cards }: { cards?: any[] }) {
       </div>
 
       <div className="form-row">
-        <label>¿Cuanto desea transferir?</label>
+        <label>¿Cuánto desea transferir?</label>
         <input
           type="number"
           placeholder="0.00"
@@ -70,8 +106,16 @@ export default function PaymentForm({ cards }: { cards?: any[] }) {
         />
       </div>
 
+      {selectedCard && (
+        <div className="payment-summary">
+          <div>
+            <strong>Límite disponible:</strong> ${selectedCard.limit}
+          </div>
+        </div>
+      )}
+
       <button className="btn-primary" type="submit" disabled={loading}>
-        {loading ? 'Processing...' : 'Confirmar Pago'}
+        {loading ? 'Procesando...' : 'Confirmar Pago'}
       </button>
     </form>
   )

@@ -27,8 +27,17 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Entities.CreditCard>(b =>
         {
             b.HasKey(c => c.Id);
-            b.Property(c => c.CardNumber).IsRequired();
-            b.HasOne(c => c.User).WithMany().HasForeignKey(c => c.UserId).OnDelete(DeleteBehavior.Cascade);
+
+            b.Property(c => c.CardNumberMasked).IsRequired();
+            b.Property(c => c.CardNumberHash).IsRequired();
+            b.Property(c => c.Last4).IsRequired();
+
+            b.HasIndex(c => new { c.UserId, c.Last4 }).IsUnique();
+
+            b.HasOne(c => c.User)
+            .WithMany()
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
         });
 
         modelBuilder.Entity<Entities.Transaction>(b =>
