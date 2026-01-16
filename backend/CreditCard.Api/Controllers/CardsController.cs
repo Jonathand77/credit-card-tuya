@@ -12,10 +12,13 @@ using CreditCard.Domain.Entities;
 namespace CreditCard.Api.Controllers
 {
     [ApiController]
+    // Ruta base: api/cards
     [Route("api/[controller]")]
+    // Todos los endpoints requieren autenticación JWT
     [Authorize]
     public class CardsController : ControllerBase
     {
+        // Servicio de aplicación que encapsula la lógica de negocio
         private readonly CreditCard.Application.Services.CardService _service;
         private readonly AutoMapper.IMapper _mapper;
 
@@ -25,12 +28,14 @@ namespace CreditCard.Api.Controllers
             _mapper = mapper;
         }
 
+        // Obtiene el UserId desde el JWT
         private Guid GetUserId()
         {
             var sub = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
             return Guid.Parse(sub!);
         }
 
+        // Obtiene todas las tarjetas del usuario autenticado
         [HttpGet]
         public async Task<IActionResult> GetUserCards()
         {
@@ -40,6 +45,7 @@ namespace CreditCard.Api.Controllers
             return Ok(list);
         }
 
+        // Obtiene una tarjeta por Id
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(Guid id)
         {
@@ -49,6 +55,7 @@ namespace CreditCard.Api.Controllers
             return Ok(_mapper.Map<CardDto>(card));
         }
 
+        // Crea una nueva tarjeta de crédito
         [HttpPost]
         public async Task<IActionResult> Create(CardCreateDto input)
         {
@@ -91,6 +98,7 @@ namespace CreditCard.Api.Controllers
             });
         }
 
+        // Actualiza una tarjeta existente
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(Guid id, CardUpdateDto input)
         {
@@ -107,6 +115,7 @@ namespace CreditCard.Api.Controllers
             return NoContent();
         }
 
+        // Elimina una tarjeta
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
@@ -119,6 +128,7 @@ namespace CreditCard.Api.Controllers
             return NoContent();
         }
 
+        // Enmascara el número de tarjeta dejando visibles solo los últimos 4 dígitos
         private string MaskCardNumber(string number)
         {
             if (string.IsNullOrWhiteSpace(number)) return number;

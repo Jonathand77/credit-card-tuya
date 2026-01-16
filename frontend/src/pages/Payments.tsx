@@ -32,7 +32,7 @@ export default function Payments() {
       </div>
 
       <div className="cards-layout">
-        {/* LEFT */}
+        {/* Izquierda */}
         <div className="card-preview">
           <CardPreview card={selected} />
 
@@ -68,7 +68,7 @@ export default function Payments() {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* Derecha */}
         <div className="payment-panel">
           <PaymentForm cards={cards} />
         </div>

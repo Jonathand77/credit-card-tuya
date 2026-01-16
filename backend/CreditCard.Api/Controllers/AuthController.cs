@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CreditCard.Api.Controllers
 {
     [ApiController]
+    // Ruta base del controlador: api/auth
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
@@ -26,9 +27,11 @@ namespace CreditCard.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
+            // Verifica si el username ya existe en la base de datos
             if (await _db.Users.AnyAsync(u => u.Username == dto.Username))
                 return Conflict(new { message = "Username already exists" });
 
+            // Crea una nueva entidad User
             var user = new User
             {
                 Id = Guid.NewGuid(),
@@ -45,6 +48,7 @@ namespace CreditCard.Api.Controllers
             return Ok(new AuthResponseDto { Token = token, Username = user.Username });
         }
 
+        // Login de usuario
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {

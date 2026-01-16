@@ -14,12 +14,12 @@ using CreditCard.Api.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Añade servicios al dev contenedor
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Program>());
 
-// CORS for frontend dev
+// CORS (conexión con el frontend)
 var frontendUrl = builder.Configuration["Frontend:Url"] ?? "https://musical-space-guide-r4g4gqqgx49rhxpx4-5173.app.github.dev";
 var localFrontendUrl = "http://127.0.0.1:5173";
 builder.Services.AddCors(options =>
@@ -32,9 +32,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-// Configure DbContext: prefer Postgres, fallback to InMemory for local/dev if connection fails
+// Configurar DbContext: preferir Postgres, recurrir a InMemory para local/desarrollo si falla la conexión
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var useInMemoryEnv = Environment.GetEnvironmentVariable("USE_INMEMORY")?.ToLower() == "true";
 var useInMemory = useInMemoryEnv;
@@ -42,7 +43,7 @@ if (!useInMemory && !string.IsNullOrWhiteSpace(connectionString))
 {
     try
     {
-        // Quick connectivity test with short timeout
+        // Prueba de conectividad rápida con tiempo de espera corto
         using var conn = new Npgsql.NpgsqlConnection(connectionString);
         conn.Open();
         conn.Close();
@@ -61,14 +62,14 @@ if (useInMemory)
         options.UseInMemoryDatabase("InMemoryDb"));
 }
 
-// Repositories and application services
+// Repositorios y servicios de aplicaciones
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<CardService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<TransactionService>();
 
-// Configure JWT authentication
+// Configura JWT authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "";
 var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "CreditCardApi";
 builder.Services.AddAuthentication(options =>
@@ -95,7 +96,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configura la HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -105,28 +106,29 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Global exception handler middleware
+// Middleware de manejo de excepciones globales
 app.UseMiddleware<ExceptionMiddleware>();
 
-// Use CORS for frontend
+// Usa CORS para frontend
 app.UseCors("Frontend");
 
-// Ensure DB provider compatibility note: run migrations after configuring connection string.
+// Asegúrese de la compatibilidad del proveedor de base de datos. 
+// Nota: ejecute las migraciones después de configurar la cadena de conexión.
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Seed in-memory DB in Development when used
+// Base de datos en memoria de semillas en desarrollo cuando se utiliza
 using (var scope = app.Services.CreateScope())
 {
     var ctx = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     try
     {
-        // Ensure DB created for providers that need it
+        // Asegúrese de que la base de datos se cree para los proveedores que la necesitan
         ctx.Database.EnsureCreated();
     }
     catch
     {
-        // ignore creation errors for unreachable providers
+        // Ignorar errores de creación de proveedores inalcanzables
     }
 }
 
@@ -149,7 +151,7 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast");
 
-// Map attribute-routed controllers
+// Controladores enrutados por atributos del mapa
 app.MapControllers();
 
 app.Run();

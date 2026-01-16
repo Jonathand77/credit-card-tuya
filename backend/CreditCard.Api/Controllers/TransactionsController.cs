@@ -11,6 +11,7 @@ using CreditCard.Api.Infrastructure;
 namespace CreditCard.Api.Controllers
 {
     [ApiController]
+    // Ruta base: api/transactions
     [Route("api/[controller]")]
     [Authorize]
     public class TransactionsController : ControllerBase
@@ -30,6 +31,7 @@ namespace CreditCard.Api.Controllers
             return Guid.Parse(sub!);
         }
 
+        // Obtiene el historial de transacciones con filtros y paginación
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] Guid? cardId, [FromQuery] Guid? userId, [FromQuery] int page = 1, [FromQuery] int size = 20)
         {
@@ -40,6 +42,7 @@ namespace CreditCard.Api.Controllers
             var total = await _service.CountByFilterAsync(actualUser, cardId);
             var items = await _service.GetByFilterAsync(actualUser, cardId, page, size);
             var dto = _mapper.Map<System.Collections.Generic.IEnumerable<TransactionDto>>(items);
+            // Respuesta paginada
             return Ok(new { total, page, size, items = dto });
         }
     }

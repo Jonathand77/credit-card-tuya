@@ -16,6 +16,8 @@ export default function Login() {
   const location = useLocation()
   const from = (location.state as any)?.from?.pathname || '/'
 
+  /* ---------- VALIDACIONES ---------- */
+
   const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
@@ -81,6 +83,8 @@ export default function Login() {
     }
   }
 
+  /* ---------- LOGIN ---------- */
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f5f5f5' }}>
 
@@ -94,7 +98,7 @@ export default function Login() {
         display: 'flex',
         justifyContent: 'center',
       }}>
-        {/* Decorative shapes */}
+        {/* Formas decorativas */}
         <div style={{
           position: 'absolute',
           width: '400px',
@@ -132,7 +136,7 @@ export default function Login() {
             style={{ height: '60px', marginBottom: '16px' }}
           />*/}
 
-          {/* Text Content */}
+          {/* Contenido de texto */}
           <div style={{ textAlign: 'left', maxWidth: '800px' }}>
             <h1 style={{
               fontSize: '42px',
@@ -156,7 +160,7 @@ export default function Login() {
         </div>
       </section>
 
-      {/* Main Content */}
+      {/* Contenido principal */}
       <div style={{
         flex: 1,
         padding: '60px 24px',
@@ -189,7 +193,7 @@ export default function Login() {
                 Accede a tu cuenta de Credit Card para gestionar tus tarjetas, realizar pagos seguros y monitorear tu historial de transacciones en tiempo real.
               </p>
 
-              {/* Benefits List */}
+              {/* Lista de beneficios */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 {[
                   { title: 'Seguro y Confiable', desc: 'Encriptación de nivel banco para tus datos' },
@@ -212,7 +216,7 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Right Column - Login Form */}
+            {/* Columna derecha - Login Form */}
             <div style={{
               background: 'var(--color-white)',
               borderRadius: '12px',
@@ -293,7 +297,7 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Features Section */}
+          {/* Seccion de Features */}
           <div style={{
             width: '100%',
             display: 'grid',
@@ -332,7 +336,7 @@ export default function Login() {
         </Modal>
       )}
 
-      {/* Animations */}
+      {/* Animaciones */}
       <style>{`
         @keyframes slideInRight {
           from { opacity: 0; transform: translateX(40px); }

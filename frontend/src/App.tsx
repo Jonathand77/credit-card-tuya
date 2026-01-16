@@ -19,7 +19,7 @@ import RequireAuth from './components/RequireAuth'
 import Toast, { showToast } from './components/Toast'
 import Footer from './components/Footer'
 
-import logo from './assets/TuyaLogo.png'
+import logo from './assets/img/TuyaLogo.png'
 
 function Nav() {
   const auth = useAuth()
@@ -89,7 +89,7 @@ export default function App() {
           {/* NAVBAR */}
           <Nav />
 
-          {/* MAIN CONTENT */}
+          {/* CONTENIDO PRINCIPAL */}
           <main style={{ flex: 1 }}>
             <div className="container">
               <Routes>

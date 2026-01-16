@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info'
 
+/* ---------- MANEJO DE ALERTAS ---------- */
+
 interface ToastMessage {
   id: string
   message: string

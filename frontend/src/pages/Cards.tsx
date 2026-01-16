@@ -57,7 +57,7 @@ export default function Cards() {
       </div>
 
       <div className="cards-layout">
-        {/* LEFT SIDE */}
+        {/* LADO IZQUIERDO */}
         <div className="card-preview">
           <CardPreview card={editing} />
 
@@ -70,7 +70,7 @@ export default function Cards() {
           </div>
         </div>
 
-        {/* RIGHT SIDE */}
+        {/* LADO DERECHO */}
         <div className="payment-panel">
           <CardForm
             initial={editing}

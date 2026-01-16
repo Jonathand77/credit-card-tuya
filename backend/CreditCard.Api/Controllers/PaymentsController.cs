@@ -12,6 +12,7 @@ using CreditCard.Domain.Entities;
 namespace CreditCard.Api.Controllers
 {
     [ApiController]
+    // Ruta base: api/payments
     [Route("api/[controller]")]
     [Authorize]
     public class PaymentsController : ControllerBase
@@ -29,6 +30,7 @@ namespace CreditCard.Api.Controllers
             return Guid.Parse(sub!);
         }
 
+        // Registra un cargo (pago) en una tarjeta de crédito
         [HttpPost]
         public async Task<IActionResult> Charge(PaymentCreateDto input)
         {

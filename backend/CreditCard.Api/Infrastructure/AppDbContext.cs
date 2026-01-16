@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CreditCard.Api.Infrastructure;
 
+// DbContext principal de la aplicación
+// Encargado de mapear las entidades del dominio a la base de datos
 public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
@@ -17,6 +19,7 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configuración de User
         modelBuilder.Entity<Entities.User>(b =>
         {
             b.HasKey(u => u.Id);
@@ -24,6 +27,7 @@ public class AppDbContext : DbContext
             b.Property(u => u.Email).IsRequired();
         });
 
+        // Configuración de CreditCard
         modelBuilder.Entity<Entities.CreditCard>(b =>
         {
             b.HasKey(c => c.Id);
@@ -40,9 +44,11 @@ public class AppDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade);
         });
 
+        // Configuración de Transaction
         modelBuilder.Entity<Entities.Transaction>(b =>
         {
             b.HasKey(t => t.Id);
+            // Relación: Transaction → CreditCard (muchas transacciones por tarjeta)
             b.HasOne(t => t.Card).WithMany(c => c.Transactions).HasForeignKey(t => t.CardId);
             b.HasOne(t => t.User).WithMany().HasForeignKey(t => t.UserId);
         });

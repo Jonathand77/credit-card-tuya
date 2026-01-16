@@ -108,6 +108,8 @@ export default function CardForm({
     }
   }
 
+  /* ---------- FORMULARIO DE TARJETA ---------- */
+
   return (
     <form onSubmit={submit}>
       <div className="form-title">

@@ -8,6 +8,8 @@ export default function RegisterForm({ onSuccess, onClose }: { onSuccess?: () =>
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
+  /* ---------- VALIDACIONES ---------- */
+
   const isValidEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 
@@ -70,6 +72,8 @@ export default function RegisterForm({ onSuccess, onClose }: { onSuccess?: () =>
       setLoading(false)
     }
   }
+
+  /* ---------- FORMULARIO DE REGISTRO ---------- */
 
   return (
     <form onSubmit={submit} style={{
