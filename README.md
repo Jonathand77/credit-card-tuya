@@ -11,7 +11,6 @@
 ![API](https://img.shields.io/badge/API-RESTful-brightgreen)
 ![Code Quality](https://img.shields.io/badge/Code%20Quality-Clean%20Code-success)
 ![SOLID](https://img.shields.io/badge/Principles-SOLID-blue)
-![REST](https://img.shields.io/badge/API-RESTful-brightgreen)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Jonathand77/credit-card-tuya)
 ![GitHub contributors](https://img.shields.io/github/contributors/Jonathand77/credit-card-tuya)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Jonathand77/credit-card-tuya)
