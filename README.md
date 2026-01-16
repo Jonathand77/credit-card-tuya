@@ -2,6 +2,16 @@
 
 ---
 
+## 🛠️ Stack tecnologico y Arquitectura
+
+![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)
+![Architecture](https://img.shields.io/badge/Architecture-Hexagonal-blue)
+![Pattern](https://img.shields.io/badge/Pattern-BFF-green)
+![API](https://img.shields.io/badge/API-RESTful-brightgreen)
+![Code Quality](https://img.shields.io/badge/Code%20Quality-Clean%20Code-success)
+![SOLID](https://img.shields.io/badge/Principles-SOLID-blue)
+![REST](https://img.shields.io/badge/API-RESTful-brightgreen)
 ![GitHub repo size](https://img.shields.io/github/repo-size/Jonathand77/credit-card-tuya)
 ![GitHub contributors](https://img.shields.io/github/contributors/Jonathand77/credit-card-tuya)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Jonathand77/credit-card-tuya)
@@ -27,7 +37,7 @@ Antes de comenzar, asegúrate de contar con:
 - Node.js 18+ y npm/pnpm o yarn
 - Cliente PostgreSQL: SQL Workbench/J o pgAdmin
 - Cuenta en Supabase
-Nota: Los archivos más importantes de este repositorio cuentan con sus comentarios para su interpretación más fácil
+- **Nota**: Los archivos más importantes de este repositorio cuentan con sus comentarios para su interpretación más fácil
 
 ## 3. 🛠️ Configuración del Repositorio
 **Pasos:**
@@ -71,7 +81,7 @@ credit-card-tuya/
 |       ├── utils/
 |       ├── App.tsx/
 ├── CreditCardApp.sln
-└──  creditcard_migrations.sql
+└── creditcard_migrations.sql
 ```
 
 ## 4. 🖥️ Backend - .NET Core 8
@@ -191,25 +201,25 @@ cd frontend
 npm install
 npm run dev
 ```
-### 6.3 Pruebas manuales
+### 6.3 Pruebas manuales (En mi caso use Postman)
 - **Registrar usuario**: POST /api/auth/register
 ```bash
-{ "username": "Jonathan77",
-  "email": "Jonathanfdez62@gmail.com",
+{ "username": "Pepito123",
+  "email": "Pepito@gmail.com",
   "password": "P@ssw0rd!"	}
 ```
 - **Login**: POST /api/auth/login
 ```bash
-{ "username": "Jonathan77",
-  "email": "Jonathanfdez62@gmail.com",
+{ "username": "Pepito123",
+  "email": "Pepito@gmail.com",
   "password": "P@ssw0rd!"	}
 ```
 - **CRUD tarjetas**: GET, POST, PUT, DELETE /api/cards
 ```bash
 { "cardNumber": "41111111111111111",
-  "holderName": "Jonathan Fernandez",
+  "holderName": "Pepito Perez",
   "expiry": "12/26",
-  "cvv": "777",  "limit": 5000	}
+  "cvv": "123",  "limit": 5000	}
 ```
 - **Pagos**: POST /api/payments
 ```bash
