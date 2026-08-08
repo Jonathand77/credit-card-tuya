@@ -8,7 +8,8 @@ namespace CreditCard.Api.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<CreditCard.Domain.Entities.CreditCard, CardDto>();
+            CreateMap<CreditCard.Domain.Entities.CreditCard, CardDto>()
+                .ForMember(d => d.CardNumber, opt => opt.MapFrom(s => s.CardNumberMasked));
             CreateMap<Transaction, TransactionDto>();
         }
     }

@@ -20,19 +20,22 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddControllers().AddFluentValidation(cfg => cfg.RegisterValidatorsFromAssemblyContaining<Program>());
 
 // CORS (conexión con el frontend)
-var frontendUrl = builder.Configuration["Frontend:Url"] ?? "https://musical-space-guide-r4g4gqqgx49rhxpx4-5173.app.github.dev";
-var localFrontendUrl = "http://127.0.0.1:5173";
+var frontendUrl = builder.Configuration["Frontend:Url"];
+var localFrontendUrls = new[] { "http://127.0.0.1:5173", "http://localhost:5173" };
+var allowedOrigins = string.IsNullOrWhiteSpace(frontendUrl)
+    ? localFrontendUrls
+    : localFrontendUrls.Append(frontendUrl).ToArray();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("Frontend", policy =>
     {
-        policy.WithOrigins(frontendUrl, localFrontendUrl)
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
 });
 
-AutoMapper
+// Configurar AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 // Configurar DbContext: preferir Postgres, recurrir a InMemory para local/desarrollo si falla la conexión
@@ -65,9 +68,11 @@ if (useInMemory)
 // Repositorios y servicios de aplicaciones
 builder.Services.AddScoped<ICardRepository, CardRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<CardService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<TransactionService>();
+builder.Services.AddScoped<AuthService>();
 
 // Configura JWT authentication
 var jwtKey = builder.Configuration["Jwt:Key"] ?? "";

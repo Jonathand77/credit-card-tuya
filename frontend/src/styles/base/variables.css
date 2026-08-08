@@ -1,6 +1,7 @@
 :root {
   --color-primary: #dc2626;
   --color-primary-dark: #991b1b;
+  --color-primary-deep: #7f1d1d;
   --color-primary-light: #fee2e2;
   --color-white: #ffffff;
   --color-dark: #111827;
@@ -10,7 +11,7 @@
   --color-error: #ef4444;
   --color-warning: #f59e0b;
 
-  --font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue',
+  --font-family: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue',
     -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-family-heading: 'Segoe UI', 'Roboto', sans-serif;
+  --font-family-heading: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
 }

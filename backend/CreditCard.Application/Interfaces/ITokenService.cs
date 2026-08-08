@@ -1,6 +1,6 @@
 using CreditCard.Domain.Entities;
 
-namespace CreditCard.Api.Services
+namespace CreditCard.Application.Interfaces
 {
     public interface ITokenService
     {

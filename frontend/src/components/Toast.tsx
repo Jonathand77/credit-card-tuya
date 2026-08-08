@@ -1,57 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { dismissToast, subscribeToasts, type ToastMessage } from '../lib/toastStore'
 
-export type ToastType = 'success' | 'error' | 'warning' | 'info'
-
-/* ---------- MANEJO DE ALERTAS ---------- */
-
-interface ToastMessage {
-  id: string
-  message: string
-  type: ToastType
-  duration?: number
-}
-
-const toastStore: {
-  messages: ToastMessage[]
-  listeners: Set<Function>
-} = {
-  messages: [],
-  listeners: new Set()
-}
-
-export const showToast = (
-  message: string,
-  type: ToastType = 'info',
-  duration = 4000
-) => {
-  const id = Date.now().toString()
-  const toast: ToastMessage = { id, message, type, duration }
-  toastStore.messages.push(toast)
-  toastStore.listeners.forEach(l => l([...toastStore.messages]))
-
-  if (duration > 0) {
-    setTimeout(() => {
-      toastStore.messages = toastStore.messages.filter(t => t.id !== id)
-      toastStore.listeners.forEach(l => l([...toastStore.messages]))
-    }, duration)
-  }
-}
+/* ---------- COMPONENTE DE ALERTAS ---------- */
 
 export default function Toast() {
   const [messages, setMessages] = useState<ToastMessage[]>([])
 
-  useEffect(() => {
-    toastStore.listeners.add(setMessages)
-
-    return () => {
-      toastStore.listeners.delete(setMessages)
-    }
-  }, [])
-
-  const close = (id: string) => {
-    toastStore.messages = toastStore.messages.filter(t => t.id !== id)
-    toastStore.listeners.forEach(l => l([...toastStore.messages]))
-  }
+  useEffect(() => subscribeToasts(setMessages), [])
 
   return (
     <>
@@ -105,7 +60,7 @@ export default function Toast() {
             </span>
 
             <button
-              onClick={() => close(t.id)}
+              onClick={() => dismissToast(t.id)}
               style={{
                 background: 'transparent',
                 border: 'none',

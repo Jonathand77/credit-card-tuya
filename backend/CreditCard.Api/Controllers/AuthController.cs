@@ -1,12 +1,7 @@
-using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CreditCard.Api.DTOs;
-using CreditCard.Api.Services;
-using CreditCard.Api.Infrastructure;
-using CreditCard.Domain.Entities;
+using CreditCard.Application.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace CreditCard.Api.Controllers
 {
@@ -15,51 +10,34 @@ namespace CreditCard.Api.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        private readonly ITokenService _tokenService;
+        private readonly AuthService _authService;
 
-        public AuthController(AppDbContext db, ITokenService tokenService)
+        public AuthController(AuthService authService)
         {
-            _db = db;
-            _tokenService = tokenService;
+            _authService = authService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            // Verifica si el username ya existe en la base de datos
-            if (await _db.Users.AnyAsync(u => u.Username == dto.Username))
+            var result = await _authService.RegisterAsync(dto.Username, dto.Email, dto.Password);
+
+            if (!result.Success)
                 return Conflict(new { message = "Username already exists" });
 
-            // Crea una nueva entidad User
-            var user = new User
-            {
-                Id = Guid.NewGuid(),
-                Username = dto.Username,
-                Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _db.Users.Add(user);
-            await _db.SaveChangesAsync();
-
-            var token = _tokenService.GenerateToken(user);
-            return Ok(new AuthResponseDto { Token = token, Username = user.Username });
+            return Ok(new AuthResponseDto { Token = result.Token!, Username = result.Username! });
         }
 
         // Login de usuario
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Username == dto.Username);
-            if (user == null) return Unauthorized(new { message = "Invalid credentials" });
+            var result = await _authService.LoginAsync(dto.Username, dto.Password);
 
-            var valid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
-            if (!valid) return Unauthorized(new { message = "Invalid credentials" });
+            if (!result.Success)
+                return Unauthorized(new { message = "Invalid credentials" });
 
-            var token = _tokenService.GenerateToken(user);
-            return Ok(new AuthResponseDto { Token = token, Username = user.Username });
+            return Ok(new AuthResponseDto { Token = result.Token!, Username = result.Username! });
         }
     }
 }

@@ -49,11 +49,15 @@
   overflow: hidden;
   padding: 28px;
   border-radius: 18px;
+  background: var(--color-white);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
   animation: invoiceFadeUp 0.5s ease both;
 }
 
 .invoice-card:hover {
   transform: translateY(-3px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
 }
 
 .invoice-card::after {
@@ -86,6 +90,7 @@
 }
 
 .invoice-title {
+  font-family: var(--font-family-heading);
   font-size: 16px;
   font-weight: 700;
 }
@@ -134,10 +139,12 @@
 }
 
 .invoice-status {
-  display: block;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  /*width: fit-content;*/
-  padding: 2px 14px;
+  width: fit-content;
+  margin-left: auto;
+  padding: 3px 14px;
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
@@ -166,10 +173,11 @@
   font-size: 13px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
-.invoice-footer button::before {
-  content: '⬇';
-  font-size: 14px;
+.load-more-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
 }

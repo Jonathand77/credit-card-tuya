@@ -1,27 +1,100 @@
-import React, { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
+import { useState, type FormEvent } from 'react'
+import { useAuth } from '../context/auth-context'
 import { useNavigate, useLocation } from 'react-router-dom'
 import Modal from '../components/Modal'
 import RegisterForm from '../components/RegisterForm'
-import { showToast } from '../components/Toast'
+import { showToast } from '../lib/toastStore'
+import logo from '../assets/img/TuyaLogo.png'
+
+/* ---------- ICONOS ---------- */
+
+const IconUser = () => (
+  <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+)
+
+const IconMail = () => (
+  <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="4" width="20" height="16" rx="2" />
+    <path d="m22 7-10 6L2 7" />
+  </svg>
+)
+
+const IconLock = () => (
+  <svg className="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+)
+
+const IconEye = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+)
+
+const IconEyeOff = () => (
+  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+    <path d="M6.61 6.61A18.5 18.5 0 0 0 1 12s4 8 11 8a9.26 9.26 0 0 0 5.39-1.61" />
+    <line x1="1" y1="1" x2="23" y2="23" />
+  </svg>
+)
+
+const IconShield = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+  </svg>
+)
+
+const IconBolt = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />
+  </svg>
+)
+
+const IconHeadset = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 14v-3a9 9 0 0 1 18 0v3" />
+    <path d="M21 14v3a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3ZM3 14v3a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3Z" />
+  </svg>
+)
+
+const IconLockSmall = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+)
+
+const BENEFITS = [
+  { icon: <IconShield />, title: 'Seguro y confiable', desc: 'Encriptación de nivel banco para tus datos' },
+  { icon: <IconBolt />, title: 'Gestión fácil', desc: 'Interfaz intuitiva y sencilla de usar' },
+  { icon: <IconHeadset />, title: 'Soporte 24/7', desc: 'Ayuda disponible en todo momento' },
+]
+
+type LoginLocationState = { from?: { pathname?: string } }
 
 export default function Login() {
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
   const auth = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
-  const from = (location.state as any)?.from?.pathname || '/'
+  const from = (location.state as LoginLocationState | null)?.from?.pathname || '/'
 
   /* ---------- VALIDACIONES ---------- */
 
-  const isValidEmail = (email: string) =>
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
-  const submit = async (e: any) => {
+  const submit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!username.trim()) {
@@ -65,18 +138,13 @@ export default function Login() {
         navigate(from, { replace: true })
       }, 1200)
 
-    } catch (err: any) {
-      switch (err.message) {
-        case 'USER_NOT_FOUND':
-          showToast('Usuario no registrado', 'warning')
-          break
+    } catch (err) {
+      const message = err instanceof Error ? err.message : ''
 
-        case 'INVALID_CREDENTIALS':
-          showToast('Usuario o contraseña incorrectos', 'error')
-          break
-
-        default:
-          showToast('Error al iniciar sesión', 'error')
+      if (/invalid credentials/i.test(message)) {
+        showToast('Usuario o contraseña incorrectos', 'error')
+      } else {
+        showToast(message || 'Error al iniciar sesión', 'error')
       }
 
       setLoading(false)
@@ -86,247 +154,146 @@ export default function Login() {
   /* ---------- LOGIN ---------- */
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f5f5f5' }}>
+    <div className="login-page">
 
-      {/* Hero Gradient Section */}
-      <section style={{
-        width: '100%',
-        background: 'linear-gradient(135deg, var(--color-primary) 0%, #b91c1c 50%, #7f1d1d 100%)',
-        padding: '60px 24px',
-        position: 'relative',
-        overflow: 'hidden',
-        display: 'flex',
-        justifyContent: 'center',
-      }}>
-        {/* Formas decorativas */}
-        <div style={{
-          position: 'absolute',
-          width: '400px',
-          height: '400px',
-          background: 'rgba(255,255,255,0.05)',
-          borderRadius: '50%',
-          top: '-100px',
-          right: '-100px'
-        }} />
-        <div style={{
-          position: 'absolute',
-          width: '300px',
-          height: '300px',
-          background: 'rgba(255,255,255,0.03)',
-          borderRadius: '50%',
-          bottom: '-50px',
-          left: '-50px'
-        }} />
+      {/* Panel de marca */}
+      <section className="login-brand">
+        <div className="login-brand-blob blob-a" aria-hidden="true" />
+        <div className="login-brand-blob blob-b" aria-hidden="true" />
 
-        <div style={{
-          width: '100%',
-          maxWidth: '1200px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          position: 'relative',
-          zIndex: 1,
-          color: 'var(--color-white)'
-        }}>
-          {/*{/* Logo Tuya S.A. 
-          <img
-            src="/TuyaLogo.png"
-            alt="Tuya S.A."
-            style={{ height: '60px', marginBottom: '16px' }}
-          />*/}
-
-          {/* Contenido de texto */}
-          <div style={{ textAlign: 'left', maxWidth: '800px' }}>
-            <h1 style={{
-              fontSize: '42px',
-              fontWeight: '700',
-              margin: '0 0 16px 0',
-              fontFamily: 'var(--font-family-heading)',
-              textTransform: 'uppercase',
-              letterSpacing: '2px'
-            }}>
-              CREDIT CARD
-            </h1>
-            <p style={{
-              fontSize: '16px',
-              margin: 0,
-              opacity: 0.95,
-              lineHeight: 1.6
-            }}>
-              Gestiona tus tarjetas de crédito, realiza pagos y consulta tu historial de transacciones
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Contenido principal */}
-      <div style={{
-        flex: 1,
-        padding: '60px 24px',
-        background: 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)'
-      }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-
-          {/* Two Column Layout */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '60px',
-            alignItems: 'center',
-            marginBottom: '80px'
-          }}>
-
-            {/* Left Column - Welcome & Benefits */}
-            <div style={{ animation: 'slideIn 0.6s ease' }}>
-              <h2 style={{
-                fontSize: '32px',
-                fontWeight: '700',
-                color: 'var(--color-primary)',
-                margin: '0 0 16px 0',
-                fontFamily: 'var(--font-family-heading)',
-                textTransform: 'uppercase'
-              }}>
-                Inicia Sesión
-              </h2>
-              <p style={{ fontSize: '16px', color: '#555', lineHeight: '1.8', margin: '0 0 32px 0' }}>
-                Accede a tu cuenta de Credit Card para gestionar tus tarjetas, realizar pagos seguros y monitorear tu historial de transacciones en tiempo real.
-              </p>
-
-              {/* Lista de beneficios */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[
-                  { title: 'Seguro y Confiable', desc: 'Encriptación de nivel banco para tus datos' },
-                  { title: 'Gestión Fácil', desc: 'Interfaz intuitiva y sencilla de usar' },
-                  { title: 'Soporte 24/7', desc: 'Ayuda disponible en todo momento' }
-                ].map((b, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                    <div style={{
-                      width: '24px', height: '24px', background: 'var(--color-primary)',
-                      borderRadius: '50%', display: 'flex', alignItems: 'center',
-                      justifyContent: 'center', color: 'white', fontSize: '14px',
-                      fontWeight: 'bold', flexShrink: 0, marginTop: '2px'
-                    }}>✓</div>
-                    <div>
-                      <h4 style={{ margin: '0 0 4px 0', fontSize: '15px', fontWeight: '600' }}>{b.title}</h4>
-                      <p style={{ margin: 0, fontSize: '13px', color: '#999' }}>{b.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Columna derecha - Login Form */}
-            <div style={{
-              background: 'var(--color-white)',
-              borderRadius: '12px',
-              boxShadow: '0 20px 60px rgba(220, 38, 38, 0.12)',
-              padding: '48px 40px',
-              animation: 'slideInRight 0.6s ease'
-            }}>
-              <div style={{
-                background: 'linear-gradient(135deg, var(--color-primary-light) 0%, #fecaca 100%)',
-                padding: '20px',
-                borderRadius: '8px',
-                marginBottom: '32px',
-                textAlign: 'center'
-              }}>
-                <h3 style={{
-                  margin: 0, fontSize: '20px', fontWeight: '700',
-                  color: 'var(--color-primary)', textTransform: 'uppercase', letterSpacing: '1px'
-                }}>ACCESO RÁPIDO</h3>
-              </div>
-
-              <form onSubmit={submit}>
-                {[
-                  { label: 'Usuario', type: 'text', value: username, onChange: setUsername },
-                  { label: 'Correo Electrónico', type: 'email', value: email, onChange: setEmail },
-                  { label: 'Contraseña', type: 'password', value: password, onChange: setPassword }
-                ].map((f, i) => (
-                  <div className="form-row" key={i} style={{ marginBottom: '16px' }}>
-                    <label style={{
-                      display: 'block', fontSize: '12px', fontWeight: '600',
-                      color: 'var(--color-primary)', marginBottom: '6px',
-                      textTransform: 'uppercase', letterSpacing: '0.5px'
-                    }}>{f.label}</label>
-                    <input
-                      required
-                      type={f.type}
-                      placeholder={`Tu ${f.label.toLowerCase()}`}
-                      value={f.value}
-                      onChange={e => f.onChange(e.target.value)}
-                      disabled={loading}
-                    />
-                  </div>
-                ))}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  style={{
-                    width: '100%', padding: '14px 24px',
-                    background: loading ? '#999' : 'var(--color-primary)',
-                    color: 'var(--color-white)', fontSize: '15px', fontWeight: '600',
-                    marginBottom: '12px', transition: 'all 0.3s ease',
-                    textTransform: 'uppercase', letterSpacing: '1px'
-                  }}
-                  onMouseEnter={(e) => !loading && (e.currentTarget.style.background = 'var(--color-primary-dark)')}
-                  onMouseLeave={(e) => !loading && (e.currentTarget.style.background = 'var(--color-primary)')}
-                >
-                  {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowRegister(true)}
-                  disabled={loading}
-                  style={{
-                    width: '100%', padding: '14px 24px',
-                    background: 'transparent', color: 'var(--color-primary)',
-                    fontSize: '15px', fontWeight: '600',
-                    border: '2px solid var(--color-primary)',
-                    transition: 'all 0.3s ease',
-                    textTransform: 'uppercase', letterSpacing: '1px'
-                  }}
-                  onMouseEnter={(e) => !loading && (e.currentTarget.style.background = 'var(--color-primary-light)')}
-                  onMouseLeave={(e) => !loading && (e.currentTarget.style.background = 'transparent')}
-                >
-                  Crear Cuenta
-                </button>
-              </form>
-            </div>
+        <div className="login-brand-content">
+          <div className="login-brand-logo">
+            <img src={logo} alt="Tuya" />
           </div>
 
-          {/* Seccion de Features */}
-          <div style={{
-            width: '100%',
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '32px',
-            padding: '60px 24px',
-            background: 'linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%)'
-          }}>
-            {['🛡️', '⚡', '✨'].map((icon, i) => (
-              <div key={i} style={{ textAlign: 'center', padding: '20px', animation: `fadeIn 0.6s ease ${0.2 + i * 0.1}s backwards` }}>
-                <div style={{
-                  width: '64px', height: '64px',
-                  background: 'linear-gradient(135deg, var(--color-primary) 0%, #991b1b 100%)',
-                  borderRadius: '12px', display: 'flex', alignItems: 'center',
-                  justifyContent: 'center', fontSize: '32px', margin: '0 auto 16px', color: 'white'
-                }}>{icon}</div>
-                <h4 style={{ margin: '0 0 8px 0', fontSize: '15px', fontWeight: '600', color: 'var(--color-primary)' }}>
-                  {['SEGURIDAD', 'VELOCIDAD', 'SIMPLICIDAD'][i]}
-                </h4>
-                <p style={{ margin: 0, fontSize: '13px', color: '#999' }}>
-                  {['Protección SSL de nivel banco', 'Procesamiento instantáneo', 'Interfaz clara e intuitiva', 'Acceso desde cualquier dispositivo'][i]}
-                </p>
+          <h1 className="login-brand-title">
+            Gestiona tus tarjetas con total confianza
+          </h1>
+          <p className="login-brand-subtitle">
+            Controla tus pagos, revisa tu historial y mantén tus finanzas
+            siempre a la vista, todo en un solo lugar.
+          </p>
+
+          <div className="login-benefits">
+            {BENEFITS.map((b, i) => (
+              <div
+                className="login-benefit"
+                key={b.title}
+                style={{ animationDelay: `${0.15 + i * 0.1}s` }}
+              >
+                <div className="login-benefit-icon">{b.icon}</div>
+                <div>
+                  <h4 className="login-benefit-title">{b.title}</h4>
+                  <p className="login-benefit-desc">{b.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Register Modal */}
+      {/* Panel del formulario */}
+      <section className="login-form-panel">
+        <div className="login-card">
+          <div className="login-card-header">
+            <h2 className="login-card-title">Inicia sesión</h2>
+            <p className="login-card-subtitle">Ingresa tus datos para acceder a tu cuenta</p>
+          </div>
+
+          <form onSubmit={submit} noValidate>
+            <div className="login-field" style={{ animationDelay: '0.05s' }}>
+              <label htmlFor="login-username">Usuario</label>
+              <div className="input-icon-group">
+                <IconUser />
+                <input
+                  id="login-username"
+                  required
+                  type="text"
+                  autoComplete="username"
+                  placeholder="Tu usuario"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className="login-field" style={{ animationDelay: '0.1s' }}>
+              <label htmlFor="login-email">Correo electrónico</label>
+              <div className="input-icon-group">
+                <IconMail />
+                <input
+                  id="login-email"
+                  required
+                  type="email"
+                  autoComplete="email"
+                  placeholder="tu@correo.com"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+            </div>
+
+            <div className="login-field" style={{ animationDelay: '0.15s' }}>
+              <label htmlFor="login-password">Contraseña</label>
+              <div className="input-icon-group">
+                <IconLock />
+                <input
+                  id="login-password"
+                  required
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  placeholder="Tu contraseña"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  className="input-icon-toggle"
+                  onClick={() => setShowPassword(v => !v)}
+                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <IconEyeOff /> : <IconEye />}
+                </button>
+              </div>
+            </div>
+
+            <div className="login-actions">
+              <button
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+                className="btn-primary btn-block"
+              >
+                {loading && <span className="btn-spinner" aria-hidden="true" />}
+                {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+              </button>
+
+              <p className="login-secondary-text">
+                ¿No tienes una cuenta?{' '}
+                <button
+                  type="button"
+                  className="link-button"
+                  onClick={() => setShowRegister(true)}
+                  disabled={loading}
+                >
+                  Regístrate
+                </button>
+              </p>
+            </div>
+          </form>
+
+          <p className="login-security-note">
+            <IconLockSmall />
+            Tus datos están protegidos con cifrado de nivel bancario
+          </p>
+        </div>
+      </section>
+
+      {/* Modal de registro */}
       {showRegister && (
         <Modal onClose={() => setShowRegister(false)}>
           <RegisterForm
@@ -335,14 +302,6 @@ export default function Login() {
           />
         </Modal>
       )}
-
-      {/* Animaciones */}
-      <style>{`
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-      `}</style>
     </div>
   )
 }

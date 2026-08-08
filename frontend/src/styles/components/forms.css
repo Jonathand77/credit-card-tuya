@@ -1,7 +1,29 @@
 .form-title {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-family-heading);
+  font-size: 19px;
   font-weight: 700;
-  margin-bottom: 16px;
+  color: var(--color-dark);
+  margin-bottom: 20px;
+}
+
+.form-title-icon {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.form-title-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 .form-row {
@@ -39,4 +61,55 @@ select:focus {
 
 input::placeholder {
   color: #9ca3af;
+}
+
+.input-icon-group {
+  position: relative;
+}
+
+.input-icon-group .input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: #9ca3af;
+  pointer-events: none;
+  transition: color 0.2s ease;
+}
+
+.input-icon-group input,
+.input-icon-group select {
+  padding-left: 42px;
+}
+
+.input-icon-group:focus-within .input-icon {
+  color: var(--color-primary);
+}
+
+.input-icon-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.input-icon-toggle:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.input-icon-group:has(.input-icon-toggle) input {
+  padding-right: 42px;
 }

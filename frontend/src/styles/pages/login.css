@@ -1,0 +1,246 @@
+.login-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(320px, 44%) 1fr;
+}
+
+/* ---------- Panel de marca ---------- */
+
+.login-brand {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 64px 56px;
+  color: var(--color-white);
+  background: linear-gradient(
+    160deg,
+    var(--color-primary) 0%,
+    var(--color-primary-dark) 55%,
+    var(--color-primary-deep) 100%
+  );
+}
+
+.login-brand-blob {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  animation: blobFloat 11s ease-in-out infinite;
+}
+
+.login-brand-blob.blob-a {
+  width: 420px;
+  height: 420px;
+  top: -140px;
+  right: -120px;
+}
+
+.login-brand-blob.blob-b {
+  width: 300px;
+  height: 300px;
+  bottom: -80px;
+  left: -80px;
+  background: rgba(255, 255, 255, 0.04);
+  animation-duration: 14s;
+  animation-delay: -4s;
+}
+
+.login-brand-content {
+  position: relative;
+  z-index: 1;
+  max-width: 440px;
+}
+
+.login-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin-bottom: 36px;
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.6s ease both;
+}
+
+.login-brand-logo img {
+  height: 32px;
+  width: auto;
+  display: block;
+}
+
+.login-brand-title {
+  font-family: var(--font-family-heading);
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 800;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  animation: fadeIn 0.6s ease 0.05s both;
+}
+
+.login-brand-subtitle {
+  font-size: 15.5px;
+  line-height: 1.7;
+  opacity: 0.92;
+  margin: 0 0 40px;
+  animation: fadeIn 0.6s ease 0.1s both;
+}
+
+.login-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-benefit {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  opacity: 0;
+  animation: fadeIn 0.5s ease forwards;
+}
+
+.login-benefit-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.login-benefit-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.login-benefit-title {
+  margin: 0 0 2px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.login-benefit-desc {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.78;
+}
+
+/* ---------- Panel del formulario ---------- */
+
+.login-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-white);
+  border-radius: 20px;
+  padding: 44px 38px;
+  box-shadow: 0 24px 60px -12px rgba(17, 24, 39, 0.18),
+    0 8px 20px rgba(220, 38, 38, 0.08);
+  animation: popIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.login-card-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.login-card-title {
+  font-family: var(--font-family-heading);
+  font-size: 25px;
+  font-weight: 800;
+  color: var(--color-dark);
+  margin: 0 0 6px;
+}
+
+.login-card-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.login-field {
+  margin-bottom: 18px;
+  opacity: 0;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.login-field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.login-actions {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-secondary-text {
+  text-align: center;
+  font-size: 13.5px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.login-security-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 24px 0 0;
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.login-security-note svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  .login-page {
+    grid-template-columns: 1fr;
+  }
+
+  .login-brand {
+    padding: 44px 28px;
+    min-height: 0;
+  }
+
+  .login-brand-content {
+    max-width: none;
+  }
+
+  .login-benefits {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 24px;
+  }
+
+  .login-brand-title {
+    font-size: 26px;
+  }
+}

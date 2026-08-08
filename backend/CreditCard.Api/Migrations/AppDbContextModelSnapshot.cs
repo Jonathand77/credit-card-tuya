@@ -31,7 +31,11 @@ namespace CreditCard.Api.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
 
-                    b.Property<string>("CardNumber")
+                    b.Property<string>("CardNumberHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CardNumberMasked")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -50,6 +54,10 @@ namespace CreditCard.Api.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("Last4")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<decimal>("Limit")
                         .HasColumnType("numeric");
 
@@ -58,7 +66,8 @@ namespace CreditCard.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("UserId", "Last4")
+                        .IsUnique();
 
                     b.ToTable("CreditCards");
                 });

@@ -4,11 +4,14 @@
 
 @import './layout/layout.css';
 @import './layout/navbar.css';
+@import './layout/footer.css';
 
 @import './components/buttons.css';
 @import './components/forms.css';
 @import './components/cards.css';
+@import './components/modal.css';
 
+@import './pages/login.css';
 @import './pages/dashboard.css';
 @import './pages/payments.css';
 @import './pages/history.css';

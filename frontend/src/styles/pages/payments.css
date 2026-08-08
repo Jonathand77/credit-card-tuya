@@ -3,39 +3,48 @@
   border-radius: 16px;
   padding: 24px;
   box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  animation: fadeIn 0.5s ease 0.1s both;
 }
 
 .available-cards {
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 .available-cards-title {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  margin-bottom: 8px;
-  color: #374151;
+  margin-bottom: 10px;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .available-card-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--color-gray-light);
   margin-bottom: 8px;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
   border: 2px solid transparent;
+  opacity: 0;
+  animation: fadeIn 0.4s ease forwards;
 }
 
 .available-card-item:hover {
   background: #eef2ff;
+  transform: translateY(-1px);
 }
 
 .available-card-item.active {
   background: var(--color-primary-light);
   border-color: var(--color-primary);
+}
+
+.available-card-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .available-card-info {
@@ -54,13 +63,37 @@
   opacity: 0.7;
 }
 
-.available-card-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 8px;
+.available-card-check {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #d1d5db;
+  color: var(--color-white);
+  transition: all 0.2s ease;
+}
+
+.available-card-check.checked {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.available-card-usage-bar {
+  margin-top: 10px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.available-card-usage-fill {
+  height: 100%;
   border-radius: 999px;
   background: var(--color-primary);
-  color: white;
+  transition: width 0.4s ease;
 }
 
 .select-wrapper {
@@ -89,4 +122,57 @@
 
 .select-wrapper select:focus + .select-icon {
   color: var(--color-primary);
+}
+
+/* ---------------- MONTOS RÁPIDOS ---------------- */
+
+.quick-amounts {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quick-amount-btn {
+  flex: 1;
+  padding: 8px 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: 8px;
+  background: var(--color-gray-medium);
+  color: #4b5563;
+}
+
+.quick-amount-btn:hover:not(:disabled) {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+/* ---------------- RESUMEN DEL PAGO ---------------- */
+
+.payment-summary {
+  margin: 20px 0;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--color-gray-light);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: fadeIn 0.3s ease both;
+}
+
+.payment-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+  color: #6b7280;
+}
+
+.payment-summary-row strong {
+  font-size: 15px;
+  color: var(--color-dark);
+}
+
+.payment-summary-row strong.negative {
+  color: var(--color-error);
 }
